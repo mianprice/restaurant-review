@@ -28,17 +28,17 @@ app.get('/search', function(req, res, next) {
         });
         return;
       }
-      var collection = data.map(function(element) {
-        var arr = [];
-        Object.keys(element).forEach(function(k) {
-          arr.push(element[k]);
-        });
-        return arr;
-      });
+      // var collection = data.map(function(element) {
+      //   var arr = [];
+      //   Object.keys(element).forEach(function(k) {
+      //     arr.push(element[k]);
+      //   });
+      //   return arr;
+      // });
       res.render('search.hbs', {
         qString: qString,
         keySet: Object.keys(data[0]),
-        restaurants: collection
+        restaurants: data
       });
     })
     .catch(next);

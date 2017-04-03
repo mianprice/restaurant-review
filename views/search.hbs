@@ -6,11 +6,12 @@
     {{/each}}
   </thead>
   <tbody>
-    {{#each restaurants as |restaurant|}}
+    {{#each restaurants}}
       <tr>
-        {{#each restaurant}}
-          <td>{{this}}</td>
-        {{/each}}
+          <td><a href="/restaurant/{{this.id}}">{{this.id}}</a></td>
+          <td><a href="/restaurant/{{this.id}}">{{this.name}}</a></td>
+          <td><a href="/restaurant/{{this.id}}">{{this.address}}</a></td>
+          <td><a href="/restaurant/{{this.id}}">{{this.category}}</a></td>
       </tr>
     {{/each}}
   </tbody>
