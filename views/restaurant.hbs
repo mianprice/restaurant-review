@@ -3,3 +3,22 @@
   <li>Address: {{address}}</li>
   <li>Category: {{category}}</li>
 </ul>
+<table class="resultTable">
+  <!-- <thead>
+    {{#each keySet}}
+      <th>{{this}}</th>
+    {{/each}}
+  </thead> -->
+  <tbody>
+    {{#each reviews}}
+      <tr>
+          <td>{{this.name}}</td>
+          <td>{{this.title}}</td>
+          <td>{{this.stars}}</td>
+      </tr>
+      <tr>
+          <td colspan="3">{{this.review}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>

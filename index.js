@@ -26,20 +26,13 @@ app.get('/search', function(req, res, next) {
         res.render('noResult.hbs', {
           qString: qString
         });
-        return;
+      } else {
+        res.render('search.hbs', {
+          qString: qString,
+          keySet: Object.keys(data[0]),
+          restaurants: data
+        });
       }
-      // var collection = data.map(function(element) {
-      //   var arr = [];
-      //   Object.keys(element).forEach(function(k) {
-      //     arr.push(element[k]);
-      //   });
-      //   return arr;
-      // });
-      res.render('search.hbs', {
-        qString: qString,
-        keySet: Object.keys(data[0]),
-        restaurants: data
-      });
     })
     .catch(next);
 });
@@ -49,11 +42,18 @@ app.get('/restaurant/:id', function(req, res, next) {
     x: req.params.id
   })
     .then(function(data) {
-      res.render('restaurant.hbs', {
-        name: data.name,
-        address: data.address,
-        category: data.category
-      });
+      db.any('select reviewer.name, review.title, review.stars, review.review from restaurant inner join review on restaurant.id=review.restaurant_id inner join reviewer on review.reviewer_id=reviewer.id where restaurant.id=${x}', {
+        x: req.params.id
+      })
+        .then(function(reviews) {
+          res.render('restaurant.hbs', {
+            name: data.name,
+            address: data.address,
+            category: data.category,
+            reviews: reviews
+          });
+        })
+        .catch(next);
     })
     .catch(next);
 });
