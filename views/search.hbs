@@ -1,1 +1,17 @@
-<h1>Showing results for "{{qString}}"</h1>
+<div class="littleTitle">Showing results for "{{qString}}"</div>
+<table class="resultTable">
+  <thead>
+    {{#each keySet}}
+      <th>{{this}}</th>
+    {{/each}}
+  </thead>
+  <tbody>
+    {{#each restaurants as |restaurant|}}
+      <tr>
+        {{#each restaurant}}
+          <td>{{this}}</td>
+        {{/each}}
+      </tr>
+    {{/each}}
+  </tbody>
+</table>

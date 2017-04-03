@@ -10,7 +10,14 @@ body {
   line-height: 6vh;
   font-size: 5vh;
   text-align: center;
-  vertical-align: bottom;
+}
+
+.littleTitle {
+  width: 100vw;
+  padding-top: 5vh;
+  line-height: 4vh;
+  font-size: 3vh;
+  text-align: center;
 }
 
 .searchForm {
@@ -35,4 +42,23 @@ body {
   margin-top: 1vh;
   margin-left: 25%;
   height: 5vh;
+}
+
+.resultTable {
+  text-align: center;
+  width: 100vw;
+}
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+.redirect {
+  text-align: center;
+  width: 500px;
+  margin: 0 30vw;
+  height: 10vh;
+  background-color: lightblue;
+
 }
