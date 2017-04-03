@@ -38,19 +38,16 @@ app.get('/search', function(req, res, next) {
 });
 
 app.get('/restaurant/:id', function(req, res, next) {
-  db.one('select * from restaurant where id = ${x}', {
-    x: req.params.id
-  })
+  db.one(`select * from restaurant where id = ${req.params.id}`)
     .then(function(data) {
-      db.any('select reviewer.name, review.title, review.stars, review.review from restaurant inner join review on restaurant.id=review.restaurant_id inner join reviewer on review.reviewer_id=reviewer.id where restaurant.id=${x}', {
-        x: req.params.id
-      })
+      db.any(`select reviewer.name, review.title, review.stars, review.review from restaurant inner join review on restaurant.id=review.restaurant_id inner join reviewer on review.reviewer_id=reviewer.id where restaurant.id=${req.params.id}`)
         .then(function(reviews) {
           res.render('restaurant.hbs', {
+            id: data.id,
             name: data.name,
             address: data.address,
             category: data.category,
-            reviews: reviews
+            reviews: reviews,
           });
         })
         .catch(next);
@@ -58,7 +55,13 @@ app.get('/restaurant/:id', function(req, res, next) {
     .catch(next);
 });
 
-
+app.post('/restaurant/:id/addReview', function(req, res, next) {
+  db.none(`insert into review values (default, 6, ${req.body.stars},'${req.body.title}','${req.body.review}',${req.params.id})`)
+    .then(function() {
+      res.redirect(`/restaurant/${req.params.id}`);
+    })
+    .catch(next);
+});
 
 
 

@@ -4,11 +4,6 @@
   <li>Category: {{category}}</li>
 </ul>
 <table class="resultTable">
-  <!-- <thead>
-    {{#each keySet}}
-      <th>{{this}}</th>
-    {{/each}}
-  </thead> -->
   <tbody>
     {{#each reviews}}
       <tr>
@@ -22,3 +17,16 @@
     {{/each}}
   </tbody>
 </table>
+<form class="reviewForm" action="{{id}}/addReview" method="post">
+  <div class="littleTitle">Enter a review for this restaurant:</div>
+  <label for="title"><input type="text" name="title" placeholder="Review Title"></label>
+  <label for="stars"># of Stars: <select name="stars">
+    <option value="5">5</option>
+    <option value="4">4</option>
+    <option value="3">3</option>
+    <option value="2">2</option>
+    <option value="1">1</option>
+  </select></label>
+  <label for="review"><textarea type="textarea" name="review" rows="10" placeholder="Review Body"></textarea></label>
+  <button type="submit">Submit My Review!</button>
+</form>

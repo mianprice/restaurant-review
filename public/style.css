@@ -65,3 +65,29 @@ table, th, td {
 .infoSet li {
   list-style: none;
 }
+
+.reviewForm {
+  width: 100vw;
+  text-align: center;
+}
+
+.reviewForm label {
+  width: 40%;
+  margin: 0 30%;
+  padding: 10px 0;
+  float:left;
+  clear:left;
+}
+
+.reviewForm label input {
+  text-align: center;
+  width: 60%;
+}
+
+.reviewForm label select {
+  width: 20%;
+}
+
+.reviewForm label textarea {
+  width: 100%;
+}
