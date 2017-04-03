@@ -37,6 +37,10 @@ app.get('/search', function(req, res, next) {
     .catch(next);
 });
 
+app.get('/restaurant/new', function(req, res) {
+  res.render('new_restaurant.hbs');
+});
+
 app.get('/restaurant/:id', function(req, res, next) {
   db.one(`select * from restaurant where id = ${req.params.id}`)
     .then(function(data) {
@@ -63,10 +67,13 @@ app.post('/restaurant/:id/addReview', function(req, res, next) {
     .catch(next);
 });
 
-
-
-
-
+app.post('/restaurant/submit_new', function(req, res, next) {
+  db.one(`insert into restaurant values (default, '${req.body.name}','${req.body.address}','${req.body.category}') returning id`)
+    .then(function(data) {
+      res.redirect(`/restaurant/${data.id}`);
+    })
+    .catch(next);
+});
 
 app.listen(8888, () => {
   console.log("Listening on port 8888");
