@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 var Promise = require('bluebird');
 const pgp = require('pg-promise')({
   promiseLib: Promise
@@ -9,7 +10,7 @@ const db = pgp(dbConfig);
 
 var app = express();
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'hbs');
 
 app.get('/', function(req, res) {
@@ -19,7 +20,7 @@ app.get('/', function(req, res) {
 app.get('/search', function(req, res, next) {
   var qString = req.query.search_query;
   dbqString = `%${qString}%`;
-  db.any('select name, distance, stars, favorite_dish from restaurants where name ilike $1', dbqString)
+  db.any('select * from restaurant where name ilike $1', dbqString)
     .then(function(data) {
       if (data.length === 0) {
         res.render('noResult.hbs', {
@@ -40,8 +41,21 @@ app.get('/search', function(req, res, next) {
         restaurants: collection
       });
     })
-    .catch(err => {throw err;});
+    .catch(next);
+});
 
+app.get('/restaurant/:id', function(req, res, next) {
+  db.one('select * from restaurant where id = ${x}', {
+    x: req.params.id
+  })
+    .then(function(data) {
+      res.render('restaurant.hbs', {
+        name: data.name,
+        address: data.address,
+        category: data.category
+      });
+    })
+    .catch(next);
 });
 
 

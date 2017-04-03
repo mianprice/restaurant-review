@@ -60,5 +60,8 @@ table, th, td {
   margin: 0 30vw;
   height: 10vh;
   background-color: lightblue;
+}
 
+.infoSet li {
+  list-style: none;
 }
