@@ -18,7 +18,7 @@ app.use(function historify(req,res,next) {
   if (req.session.history === undefined) {
     req.session.history = [];
   }
-  if (!req.path.includes('/login') && !req.path.includes('/public')) {
+  if (!req.path.includes('/login') && !req.path.includes('/public') && !req.path.includes('Account') && !req.path.includes('add') && !req.path.includes('new')) {
     req.session.history.push(req.path);
   }
   next();
@@ -76,6 +76,35 @@ app.get('/restaurant/:id', function(req, res, next) {
     .catch(next);
 });
 
+app.get('/createAccount', function(req,res,next) {
+  res.render('new_reviewer.hbs', {
+    name_taken: req.session.name_taken,
+    no_names: JSON.stringify(req.session.no_names)
+  });
+});
+
+app.post('/addAccount', function(req,res,next) {
+  db.none('select * from reviewer where name=$1', [req.body.username])
+    .then(() => {
+      db.one('insert into reviewer values (default, $1, $2, 1, $3) returning id', [req.body.username, req.body.email, req.body.password])
+        .then((data) => {
+          req.session.name = req.body.username;
+          req.session.user_id = data.id;
+          req.session.loggedIn = true;
+          req.session.tries = 0;
+          res.redirect(req.session.history[req.session.history.length - 1] === undefined ? '/' : req.session.history[req.session.history.length - 1]);
+        })
+        .catch(next);
+    }).catch((err) => {
+      req.session.name_taken = true;
+      if (req.session.no_names === undefined) {
+        req.session.no_names = [];
+      }
+      req.session.no_names.push(req.body.username);
+      res.redirect('/createAccount');
+    });
+});
+
 app.get('/login', function(req,res,next) {
   if (req.session.tries === undefined) {
     req.session.tries = 0;
@@ -96,7 +125,7 @@ app.post('/login/submit', function(req, res, next) {
         req.session.user_id = data.id;
         req.session.loggedIn = true;
         req.session.tries = 0;
-        res.redirect(req.session.history[req.session.history.length - 1].replace("/restaurant/", ""));
+        res.redirect(req.session.history[req.session.history.length - 1]);
       } else {
         req.session.loggedIn = false;
         req.session.tries += 1;
@@ -132,10 +161,10 @@ app.get('/new_review', function(req, res) {
 });
 
 app.post('/addReview', function(req, res, next) {
-  var restaurant_id = req.session.history[req.session.history.length - 3].replace("/restaurant/", "");
+  var restaurant_id = req.session.history[req.session.history.length - 1].replace("/restaurant/", "");
   db.none(`insert into review values (default,$1,$2,$3,$4,$5)`, [`${req.session.user_id}`,`${req.body.stars}`, `${req.body.title}`, `${req.body.review}`, `${restaurant_id}`])
     .then(function() {
-      res.redirect(`/restaurant/${restaurant_id}`);
+      res.redirect(`${req.session.history[req.session.history.length - 1]}`);
     })
     .catch(next);
 });
@@ -143,7 +172,7 @@ app.post('/addReview', function(req, res, next) {
 app.post('/addRestaurant', function(req, res, next) {
   db.one("insert into restaurant values (default, $1,$2,$3) returning id", [`${req.body.name}`, `${req.body.address}`, `${req.body.category}`])
     .then(function(data) {
-      res.redirect(`/restaurant/${data.id}`);
+      res.redirect(`${req.session.history[req.session.history.length - 1]}`);
     })
     .catch((err) => {
       throw err;
@@ -152,6 +181,8 @@ app.post('/addRestaurant', function(req, res, next) {
 
 app.use(function errs(err,req,res,next) {
   console.log(`Method: ${req.method} || Path: ${req.path}`);
+  console.log(err);
+  next();
 });
 
 app.listen(8888, () => {

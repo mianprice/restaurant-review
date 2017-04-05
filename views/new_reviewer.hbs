@@ -1,0 +1,10 @@
+{{#if name_taken}}
+  <a class="button">These names have already been taken: {{no_names}}</a>
+{{/if}}
+<form class="searchForm" style="float:left;" action="/addAccount" method="post">
+  <input type="text" name="username" placeholder="Enter your username here">
+  <input type="text" name="email" placeholder="Enter your email address here">
+  <input type="text" name="password" placeholder="Enter your password here">
+  <input type="text" name="confirm_password" placeholder="Confirm your password here">
+  <button type="submit">Create Account and Login</button>
+</form>
