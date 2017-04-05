@@ -1,0 +1,9 @@
+<div class="bigTitle">Login</div>
+{{#if prevTries}}
+  <h2>Login attempts failed: {{tryCount}}</h2>
+{{/if}}
+<form class="searchForm" style="float:left;" action="/login/submit" method="post">
+  <input type="text" name="name" placeholder="Enter your name here">
+  <input type="text" name="password" placeholder="Enter your password here">
+  <button type="submit">Login</button>
+</form>

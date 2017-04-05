@@ -6,6 +6,17 @@
     <link rel="stylesheet" href="/style.css">
   </head>
   <body>
+    <div class="header">
+      {{#if loggedIn}}
+        <div class="greeting">
+          Hello, {{session_name}}!
+        </div>
+      {{else}}
+        <div class="login_button">
+          <a href="/login">Login!</a>
+        </div>
+      {{/if}}
+    </div>
     {{{body}}}
   </body>
 </html>

@@ -7,11 +7,13 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ian Price",
+  "repository": "https://github/mianprice/restaurant_review.git",
   "license": "ISC",
   "dependencies": {
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
+    "express-session": "^1.15.2",
     "hbs": "^4.0.1",
     "pg-promise": "^5.6.4"
   }
