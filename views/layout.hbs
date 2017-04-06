@@ -6,17 +6,30 @@
     <link rel="stylesheet" href="/style.css">
   </head>
   <body>
-    <div class="header">
+
       {{#if loggedIn}}
-        <div class="greeting">
-          Hello, {{session_name}}!
+      <div class="header header3">
+        <div class="greeting3">
+          <a class="button" href="">Hello, {{session_name}}!</a>
         </div>
+        <div class="greeting3">
+          <a class="button" href="/showall">Show all restaurants</a>
+        </div>
+        <div class="greeting3">
+          <a href="/logout" class="button">Logout</a>
+        </div>
+      </div>
       {{else}}
-        <div class="login_button">
+      <div class="header">
+        <div class="greeting2">
+          <a class="button" href="/showall">Show all restaurants</a>
+        </div>
+        <div class="greeting2">
           <a href="/login" class="button">Login!</a>
         </div>
+      </div>
       {{/if}}
-    </div>
+
     {{{body}}}
   </body>
 </html>

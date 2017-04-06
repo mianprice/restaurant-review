@@ -57,6 +57,20 @@ app.get('/search', function(req, res, next) {
     .catch(next);
 });
 
+app.get('/showall', function(req, res, next) {
+  db.any('select * from restaurant')
+    .then(function(data) {
+      res.render('search.hbs', {
+        qString: 'all restaurants',
+        keySet: Object.keys(data[0]),
+        restaurants: data,
+        loggedIn: req.session.loggedIn,
+        session_name: req.session.name
+      });
+    })
+    .catch(next);
+});
+
 app.get('/restaurant/:id', function(req, res, next) {
   db.one("select * from restaurant where id = $1", [`${req.params.id}`])
     .then(function(data) {
@@ -164,6 +178,14 @@ app.use(function authenticate(req, res, next) {
   } else {
     res.redirect('/login');
   }
+});
+
+app.get('/logout', function(req,res) {
+  req.session.name = undefined;
+  req.session.user_id = undefined;
+  req.session.loggedIn = false;
+  req.session.tries = undefined;
+  res.redirect('/');
 });
 
 app.get('/new_restaurant', function(req, res) {
