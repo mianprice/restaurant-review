@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const path = require('path');
+const bcrypt = require('bcrypt');
 var Promise = require('bluebird');
 const pgp = require('pg-promise')({
   promiseLib: Promise
@@ -18,7 +19,7 @@ app.use(function historify(req,res,next) {
   if (req.session.history === undefined) {
     req.session.history = [];
   }
-  if (!req.path.includes('/login') && !req.path.includes('/public') && !req.path.includes('Account') && !req.path.includes('add') && !req.path.includes('new')) {
+  if (!req.path.includes('/login') && !req.path.includes('/public') && !req.path.includes('Account') && !req.path.includes('add') && !req.path.includes('new') && !req.path.includes('icon')) {
     req.session.history.push(req.path);
   }
   next();
@@ -79,30 +80,42 @@ app.get('/restaurant/:id', function(req, res, next) {
 app.get('/createAccount', function(req,res,next) {
   res.render('new_reviewer.hbs', {
     name_taken: req.session.name_taken,
-    no_names: JSON.stringify(req.session.no_names)
+    no_names: JSON.stringify(req.session.no_names),
+    pass_fail: req.session.pass_fail,
+    pass_string: req.session.pass_string
   });
 });
 
 app.post('/addAccount', function(req,res,next) {
-  db.none('select * from reviewer where name=$1', [req.body.username])
-    .then(() => {
-      db.one('insert into reviewer values (default, $1, $2, 1, $3) returning id', [req.body.username, req.body.email, req.body.password])
-        .then((data) => {
-          req.session.name = req.body.username;
-          req.session.user_id = data.id;
-          req.session.loggedIn = true;
-          req.session.tries = 0;
-          res.redirect(req.session.history[req.session.history.length - 1] === undefined ? '/' : req.session.history[req.session.history.length - 1]);
-        })
-        .catch(next);
-    }).catch((err) => {
-      req.session.name_taken = true;
-      if (req.session.no_names === undefined) {
-        req.session.no_names = [];
-      }
-      req.session.no_names.push(req.body.username);
-      res.redirect('/createAccount');
-    });
+  if (req.body.password !== req.body.confirm_password) {
+    req.session.pass_fail = true;
+    req.session.pass_string = 'The passwords you entered do not match.';
+    res.redirect('/createAccount');
+  } else {
+    db.none('select * from reviewer where name=$1', [req.body.username])
+      .then(() => {
+        bcrypt.hash(req.body.password, 10)
+          .then((encPass) => {
+            db.one('insert into reviewer values (default, $1, $2, 1, $3) returning id', [req.body.username, req.body.email, encPass])
+              .then((data) => {
+                req.session.name = req.body.username;
+                req.session.user_id = data.id;
+                req.session.loggedIn = true;
+                req.session.tries = 0;
+                res.redirect(req.session.history[req.session.history.length - 1] === undefined ? '/' : req.session.history[req.session.history.length - 1]);
+              })
+              .catch(next);
+          })
+          .catch(next);
+      }).catch((err) => {
+        req.session.name_taken = true;
+        if (req.session.no_names === undefined) {
+          req.session.no_names = [];
+        }
+        req.session.no_names.push(req.body.username);
+        res.redirect('/createAccount');
+      });
+  }
 });
 
 app.get('/login', function(req,res,next) {
@@ -117,20 +130,27 @@ app.get('/login', function(req,res,next) {
 });
 
 app.post('/login/submit', function(req, res, next) {
-  req.session.tries += 1;
   db.one('select * from reviewer where name=$1', [req.body.name])
     .then((data) => {
-      if (data.password === req.body.password) {
-        req.session.name = data.name;
-        req.session.user_id = data.id;
-        req.session.loggedIn = true;
-        req.session.tries = 0;
-        res.redirect(req.session.history[req.session.history.length - 1]);
-      } else {
-        req.session.loggedIn = false;
-        req.session.tries += 1;
-        res.redirect('/login');
-      }
+      bcrypt.compare(req.body.password, data.password)
+        .then(function(match) {
+          if (match) {
+            req.session.name = data.name;
+            req.session.user_id = data.id;
+            req.session.loggedIn = true;
+            req.session.tries = 0;
+            res.redirect(req.session.history[req.session.history.length - 1] === undefined ? '/' : req.session.history[req.session.history.length - 1]);
+          } else {
+            req.session.loggedIn = false;
+            req.session.tries += 1;
+            res.redirect('/login');
+          }
+        })
+        .catch((err) => {
+          req.session.loggedIn = false;
+          req.session.tries += 1;
+          res.redirect('/login');
+        });
     }).catch((err) => {
       req.session.loggedIn = false;
       req.session.tries += 1;
